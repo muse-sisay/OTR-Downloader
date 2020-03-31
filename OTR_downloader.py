@@ -19,7 +19,7 @@ def get_soup(url):
 def read_links(file):
     with open(file) as f:
         line = f.readlines()
-    url = [l.strip for l in line]
+    url = [l.strip() for l in line]
     return url
 
 
