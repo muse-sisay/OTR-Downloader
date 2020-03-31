@@ -1,22 +1,22 @@
 # OTR Downloader
 --
 
-Downloader for downloading Old time radio show form [Internet Archive](archive.org).
+Downloader for Old Time Radio show form [Internet Archive](archive.org).
 
 ## USAGE
 
-Specify download path using the "-d" option. 
+Sample Usage
 
 ```
-$ pyton3 OTR_downloader.py -d /download/path -u link | -f [file]
+	$ pyton3 OTR_downloader.py -d /download/path -u link | -f [file]
 ```
 
 Arguments
 
 ```
 -d 		The directory to store the downloaded file.
--u 		Radio show link to download
--f 		Download shows from a file 	
+-u 		URL to download single show.
+-f 		Download shows from a file.	
 ```	
 
 
@@ -25,7 +25,7 @@ Arguments
 Install all dependencies:
 
 ```
-pip install -r requirements.txt
+	$ pip install -r requirements.txt
 ```
 
 - beautifulsoup
@@ -40,9 +40,8 @@ pip install -r requirements.txt
 - Speed Gibson of the International Secret Police
 - Dragnet 
 
-To download use 
+To download these shows use
 
 ```
-python3 OTR_downloader.py  -f -d ./
-
+	$ python3 OTR_downloader.py  -f -d ./
 ```
