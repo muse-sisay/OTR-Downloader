@@ -1,14 +1,11 @@
 import requests
 import sys
-import getopt
+import click
 import os
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 from urllib.request import urlopen
 from tqdm import tqdm
-
-RADIO_DIR = ''
-URL = []
 
 
 def get_soup(url):
@@ -17,20 +14,20 @@ def get_soup(url):
 
 
 def read_links(file):
-    with open(file) as f:
-        line = f.readlines()
+    # with open(file) as f:
+    line = file.readlines()
     url = [l.strip() for l in line]
     return url
 
 
-def move_to_show_directory(show_title):
+def move_to_show_directory(DL_PATH, show_title):
     '''
     Source: https://github.com/22nds/treehouse_video_downloader
     '''
 
     # Move to Radio Show directory
-    if os.getcwd() != RADIO_DIR:
-        os.chdir(RADIO_DIR)
+    if os.getcwd() != DL_PATH:
+        os.chdir(DL_PATH)
     try:
         # Make a directory with a course name
         os.mkdir(show_title)
@@ -79,42 +76,15 @@ def download_episode(ep_name, url):
     pbar.close()
 
 
-def main():
+def download(links, DL_PATH):
 
-    # get arguments
-    options, r = getopt.getopt(sys.argv[1:], 'd:fu:')
-    # Check if arguments are supplied
-    # if no arguments are supplied, exit
-    if not options:
-        print(
-            f'Usage: python3 {sys.argv[0]} -d /download/path -u link | -f [file]')
-        sys.exit(2)
-
-    for opt, arg in options:
-        # Set download dir
-        if opt in '-d':
-            global RADIO_DIR
-            RADIO_DIR = arg
-
-        # Read the links from file
-        elif opt in '-f':
-            if not arg:
-                arg = 'links.txt'
-            print(f'Reading Links from {arg}.')
-            global URL
-            URL = read_links(arg)
-
-        # GET url
-        elif opt in '-u':
-            URL.append(arg)
-
-    for u in URL:
+    for u in links:
 
         soup = get_soup(u)
         show_title = soup.find(class_="breaker-breaker").text
 
         print(f'Downloading {show_title}')
-        move_to_show_directory(show_title)
+        move_to_show_directory(DL_PATH, show_title)
 
         # Navigate to the download section
         u = u.replace('details', 'download')
@@ -130,4 +100,22 @@ def main():
                 download_episode(ep_name, ep_link)
 
 
-main()
+@click.command()
+@click.option('--output', '-o', type=click.Path(), default='./', help='Download path/location')
+@click.option('--file', '-f', type=click.File('r'), default='links.txt',  help='File to download from.')
+@click.argument('link',  required=False)
+def cli(output, file, link):
+    '''
+    Old time radio show downloader from archive.org.
+    '''
+    if link:
+        # start downloading the files from the url
+        click.echo(f'Downloading {link}')
+        download([].append(link),  output)
+    else:
+        #  Start downloading from this  file
+        click.echo(f'Getting links from {file.name}.')
+        download(read_links(file), output)
+
+
+cli()
