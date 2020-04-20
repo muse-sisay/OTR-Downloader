@@ -1,47 +1,56 @@
 # OTR Downloader
---
+---
 
-Downloader for Old Time Radio show form [Internet Archive](archive.org).
+Download *Old Time Radio* show form the [Internet Archive](archive.org).
 
 ## USAGE
+---
 
-Sample Usage
-
-```
-	$ pyton3 OTR_downloader.py -d /download/path -u link | -f [file]
-```
-
-Arguments
 
 ```
--d 		The directory to store the downloaded file.
--u 		URL to download single show.
--f 		Download shows from a file.	
-```	
+$ python3 OTR_downloader.py --help                                                                               
+Usage: OTR_downloader.py [OPTIONS] [LINK]
 
+  Old time radio show downloader from archive.org.
+
+Options:
+  -o, --output PATH    Download path/location
+  -f, --file FILENAME  Text file containing list of show urls.
+  --help               Show this message and exit.
+	
+```
+
+To download from a link in the current direcotry 
+
+```
+$ python3  OTR_downloader.py [LINK]
+```
 
 ## Dependencies
+---
 
 Install all dependencies:
 
 ```
-	$ pip install -r requirements.txt
+$ pip install -r requirements.txt
 ```
 
 - beautifulsoup
 - requests
 - tqdm
+- click
 
 
 ## Show Recommendation
+---
 
-- Sherlock Holmes : featuring Basil Rathbone and Nigel Bruce, people say Rathbone was the best sherlock Holmes but I prefer Tom Conway.
-- The Shadow : look for the one's by Orson Welles. 
+- Sherlock Holmes : featuring Basil Rathbone and Nigel Bruce. People say Basil 	Rathbone 	was the best Sherlock Holmes but I think Tom Conway was the best actor 	who played Sherlock Holmes, what do you think?.
+- The Shadow : some episodes feauturing the Orson Welles. 
 - Speed Gibson of the International Secret Police
-- Dragnet 
+- Dragnet
 
 To download these shows use
 
 ```
-	$ python3 OTR_downloader.py  -f -d ./
+$ python3 OTR_downloader.py 
 ```
