@@ -102,7 +102,7 @@ def download(links, DL_PATH):
 
 @click.command()
 @click.option('--output', '-o', type=click.Path(), default='./', help='Download path/location')
-@click.option('--file', '-f', type=click.File('r'), default='links.txt',  help='File to download from.')
+@click.option('--file', '-f', type=click.File('r'), default='links.txt',  help='Text file containing list of show urls.')
 @click.argument('link',  required=False)
 def cli(output, file, link):
     '''
@@ -114,8 +114,9 @@ def cli(output, file, link):
         download([].append(link),  output)
     else:
         #  Start downloading from this  file
-        click.echo(f'Getting links from {file.name}.')
+        click.echo(f'Getting links from \"{file.name}.\"')
         download(read_links(file), output)
 
 
-cli()
+if __name__ == "__main__":
+    cli()
