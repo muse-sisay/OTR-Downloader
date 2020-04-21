@@ -1,10 +1,8 @@
 # OTR Downloader
----
 
 Download *Old Time Radio* show form the [Internet Archive](archive.org).
 
 ## USAGE
----
 
 
 ```
@@ -27,7 +25,6 @@ $ python3  OTR_downloader.py [LINK]
 ```
 
 ## Dependencies
----
 
 Install all dependencies:
 
@@ -41,8 +38,7 @@ $ pip install -r requirements.txt
 - click
 
 
-## Show Recommendation
----
+## My Recommendation
 
 - Sherlock Holmes : featuring Basil Rathbone and Nigel Bruce. People say Basil 	Rathbone 	was the best Sherlock Holmes but I think Tom Conway was the best actor 	who played Sherlock Holmes, what do you think?.
 - The Shadow : some episodes feauturing the Orson Welles. 
