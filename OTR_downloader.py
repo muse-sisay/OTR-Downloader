@@ -100,7 +100,7 @@ def cli(out_path, file, link):
     p = Path(out_path)
     if link:
         # start downloading the files from the url
-        click.echo(f'Downloading {link}')
+        click.echo(click.style(f'Downloading {link}', fg='blue' ))
         download([].append(link), p )
     else:
         #  Start downloading from this  file
