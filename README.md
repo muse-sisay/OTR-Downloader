@@ -53,4 +53,5 @@ To download these shows use
 $ python3 OTR_downloader.py -f links.txt
 ```
 
-There is a nice list of shows over reddit. ![Old Time Radio for beginners.](https://old.reddit.com/r/otr/comments/7fyavw/old_time_radio_for_beginners/)
+There is a nice list of shows over reddit. [Old Time Radio for beginners.](https://old.reddit.com/r/otr/comments/7fyavw/old_time_radio_for_beginners/)
+s
