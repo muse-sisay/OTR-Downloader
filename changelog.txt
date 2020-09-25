@@ -1,0 +1,5 @@
+# 25-09-2020
+- checks if it's a valid url before a GET request
+- fixed a bug where [].append(link) would be
+    sending an empty object
+- started logging changes
