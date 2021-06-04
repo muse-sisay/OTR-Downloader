@@ -1,11 +1,12 @@
 import requests
-import click
+import argparse
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 from urllib.request import urlopen
 from tqdm import tqdm
 from pathlib import Path
 import re
+import sys
 
 
 def get_soup(url):
@@ -13,11 +14,15 @@ def get_soup(url):
     return BeautifulSoup(page.text, 'html.parser')
 
 
-def read_links(file):
-    # with open(file) as f:
-    line = file.readlines()
-    url = [l.strip() for l in line]
-    return url
+def read_links(txt):
+    txt_file = Path(txt)
+    try:
+        with open(txt_file, 'r') as f:
+            links = f.readlines()
+        return [x.strip() for x in links]
+    except FileNotFoundError:
+        print(f"FileNotFoundError: No such file {sys.argv[-1]}")
+        exit()
 
 
 def download_episode(f, url):
@@ -96,38 +101,46 @@ def download(links, DL_PATH):
                 except KeyError:
                     pass
         else:
-            click.secho(
-                f'Error: INVALID URL \n Make sure \'{u}\' is a valid url and try again.\n '
-                'The URL should start with https://archive.org/details/ ', fg='red')
+            # click.secho(
+            #     f'Error: INVALID URL \n Make sure \'{u}\' is a valid url and try again.\n '
+            #     'The URL should start with https://archive.org/details/ ', fg='red')
+            print(f'Error: INVALID URL \n Make sure \'{u}\' is a valid url and try again.\n '
+                  'The URL should start with https://archive.org/details/ ')
             pass
 
 
-@click.command()
-@click.option('--output', '-o', 'out_path', type=click.Path(), default='.',
-              help='Download path/location')
-@click.option('--file', '-f', is_flag=True, default=False,
-              help='Get links from a text file.s')
-@click.argument('link')
-def cli(out_path, file, link):
-    '''
-    Old time radio show downloader from archive.org.
-    '''
-    p = Path(out_path)
+parser = argparse.ArgumentParser(prog="otr-dl",
+                                 description="Old time radio show downloader from archive.org.")
 
-    if not file:
-        # start downloading the files from the url
-        click.secho(f'Downloading {link}', fg='blue')
-        download([link], p)
+parser.add_argument("link",
+                    metavar="LINK",
+                    help="show link")
+parser.add_argument("-o",
+                    "--output",
+                    metavar="/path",
+                    default="./",
+                    type=str,
+                    help="path to save files")
+parser.add_argument("-f",
+                    action="store_true",
+                    dest='file',
+                    help="text file containg links to otr shows")
 
+args = parser.parse_args()
+
+
+def main():
+
+    p = Path(args.output)
+
+    if args.file:
+       # Read links from args.link
+        links = read_links(args.link)
     else:
-        if Path(link).exists():
-            #  Start downloading from a file
-            click.echo(f'Reading links from \"{link}.\"')
-            download(read_links(link), p)
-        else:
-            click.secho(
-                f'Error: MISSING FILE \n Make sure the file \'{link}\' exits.', fg='red')
+        links = [args.link]
+
+    download(links, p)
 
 
 if __name__ == "__main__":
-    cli()
+    main()
