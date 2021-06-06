@@ -1,6 +1,6 @@
 # OTR Downloader
 
-An archiver for **Old Time Radio shows** form the [Internet Archive](archive.org).
+An archiver for **Old Time Radio shows** form the [Internet Archive](https://www.archive.org).
 
 ## Install
 
