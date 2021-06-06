@@ -1,57 +1,56 @@
 # OTR Downloader
 
-Download *Old Time Radio* show form the [Internet Archive](archive.org).
+An archiver for **Old Time Radio shows** form the [Internet Archive](archive.org).
 
-## USAGE   
+## Install
 
-Requires python 3+
-```
-$ python3 OTR_downloader.py --help                                                                               
-Usage: OTR_downloader.py [OPTIONS] [LINK]
+Start by cloning the repo to your computer
 
-  Old time radio show downloader from archive.org.
-
-Options:
-  -o, --output PATH    Download path/location
-  -f, --file FILENAME  Get links from a text file.
-  --help               Show this message and exit.
-	
+```sh
+$  git clone https://github.com/muse-sisay/OTR-Downloader
 ```
 
-To download from a link in the current direcotry 
+Next change directory to the repository and install the required python modules for this script.
 
-```bash
-$ python3  OTR_downloader.py [LINK]
+```sh
+$ cd OTR-Downloader/
+$ python3 -m pip install -r requirements.txt
 ```
 
-## Dependencies
+## Usage Examples
 
-Install all dependencies:
-
-```bash
-$ pip install -r requirements.txt
-$ # If you are using python3
-$ python3 -m pip -r requirements.txt
+```sh
+$ python3 otr-dl.py https://archive.org/details/OTRR_Dragnet_Singles
 ```
+: download show in the current directory as the script.
 
-- beautifulsoup
-- requests
-- tqdm
-- click
+```sh
+$ python3 otr-dl.py -o ~/Music/OTR/ https://archive.org/details/OTRR_Dragnet_Singles
+```
+: show downloaded to `~/Music/OTR`
+
+
+```sh
+$ python3 otr-dl.py -f links.txt
+```
+: show links are read from  `links.txt`. Use this when you have multiple show to download.
+
 
 
 ## My Recommendation 
 
-- Sherlock Holmes : featuring Basil Rathbone and Nigel Bruce. ( People say Basil Rathbone was the best Sherlock Holmes ever but I beg to diffrer, think Tom Conway was the best Sherlock Holmes. Let me know who you think was the best Sherlock Holmes)
-- The Shadow : some episodes feauturing the Orson Welles, by far the. 
-- Speed Gibson of the International Secret Polices
-- Dragnet : open this and mellow back
+If you don't know where to get started, check out my favourite old time radio shows. Run the following to download them
 
-To download these shows use
-
-```bash
-$ python3 OTR_downloader.py -f links.txt
+```sh
+$ python3 otr-dl.py -f links.txt
 ```
 
-There is a nice list of shows over reddit. [Old Time Radio for beginners.](https://old.reddit.com/r/otr/comments/7fyavw/old_time_radio_for_beginners/)
-s
+They include 
+
+- **Sherlock Holmes** : featuring Basil Rathbone and Nigel Bruce. ( People say Basil Rathbone was the best Sherlock Holmes ever but I beg to diffrer, I say Tom Conway was the best Sherlock Holmes *ever*. Whom do you think played Sherlock Holmes best?)
+
+- **Speed Gibson of the International Secret Police**
+
+- **Dragnet** : open this and mellow back
+
+There is a nice list of shows over reddit. [Old Time Radio for beginners.](https://old.reddit.com/r/otr/comments/7fyavw/old_time_radio_for_beginners/) While you are at it check out the sub-reddit :).
