@@ -9,15 +9,42 @@ import re
 import sys
 
 
+class Show:
+    def __init__(self, url):
+        self.url = url
+        self.download_url = ""
+        self.title = ""
+        self.description = ""
+        self.episodes = []
+        self.path = ""
+
+    def __repr__(self):
+        return (
+            "\n"
+            f"{'show:':>10} {self.title} \n"
+            f"{'url:':>10} {self.url} \n"
+            f"{'# of eps:':>10} {len(self.episodes)}"
+            "\n"
+        )
+
+
+class Episode:
+    def __init__(self, title, URI):
+        self.title = title
+        self.URI = URI
+        self.url = ""
+
+
 def get_soup(url):
+    # TODO : catch/handle errors
     page = requests.get(url)
     return BeautifulSoup(page.text, 'html.parser')
 
 
-def read_links(txt):
-    txt_file = Path(txt)
+def read_links(filename):
+    filename_txt = Path(filename)
     try:
-        with open(txt_file, 'r') as f:
+        with open(filename_txt, 'r') as f:
             links = f.readlines()
         return [x.strip() for x in links]
     except FileNotFoundError:
@@ -25,7 +52,71 @@ def read_links(txt):
         exit()
 
 
-def download_episode(f, url):
+def create_show_dir(parent, title):  # needs to be renamed
+    # Returns local show path
+    # Creates the dir if it doesnt exist
+    show_path = Path(parent + title)
+
+    try:
+        show_path.mkdir()
+    except FileExistsError:
+        # do nothing
+        pass
+
+    return show_path
+
+
+def get_all_episodes(soup):
+    # *** all the files with *.mp3 file
+    # in the soup file
+    ep_links = []
+
+    a_tag = soup.find_all('a')
+
+    for a in a_tag:
+        try:
+            if ".mp3" in a["href"]:
+                ep_links.append(
+                    Episode(a.text.replace('_', ' ')[:-4],
+                            a['href']))
+        except KeyError:
+            pass
+
+    return ep_links
+
+
+def detail_page(link):  # TODO : rename later
+    return link.replace('details', 'download') + "/"
+
+
+def download_show(url):
+
+    show = Show(url)
+
+    soup = get_soup(show.url)
+
+    show.title = soup.find(class_="breaker-breaker").text
+
+    show.path = create_show_dir(args.output, show.title)
+
+    show.download_url = detail_page(show.url)
+    dl_soup = get_soup(show.download_url)
+    show.episodes = get_all_episodes(dl_soup)
+
+    print(show)
+
+    for episode in show.episodes:
+        episode.url = urljoin(show.download_url, episode.URI)
+        download_episode(show.path, episode)
+
+
+def download_episode(path, episode):
+    episode_f = path / (episode.title + ".mp3")
+    print(f"{episode.title} :")
+    download(episode_f, episode.url)
+
+
+def download(f, url):
     '''
     Downloads the episode.
     Has a progress bar, using tqdm
@@ -51,7 +142,7 @@ def download_episode(f, url):
 
     # Set progress bar with first_byte being the intial
     pbar = tqdm(total=file_size,  initial=first_byte,
-                unit='B', unit_scale=True, desc=f.stem)
+                unit='B', unit_scale=True)  # , desc=f"f.stem")
 
     req = requests.get(url, headers=header, stream=True)
 
@@ -63,50 +154,6 @@ def download_episode(f, url):
                 pbar.update(1024)
 
     pbar.close()
-
-
-def download(links, DL_PATH):
-
-    url_pattern = re.compile(r"^https:\/\/archive.org\/details\/.+")
-
-    for u in links:
-        if url_pattern.match(u):
-
-            soup = get_soup(u)
-            show_title = soup.find(class_="breaker-breaker").text
-
-            print(f'Downloading {show_title}')
-
-            DL_PATH = DL_PATH / show_title
-            try:
-                DL_PATH.mkdir()
-            except FileExistsError:
-                # do nothing
-                pass
-
-            # [GET] Navigate to the download section
-            u = u.replace('details', 'download')
-            soup = get_soup(u)
-
-            ep_links = soup.find_all('a')
-
-            for l in ep_links:
-                try:
-                    if '.mp3' in l['href']:
-                        ep_name = l.text.replace('_', ' ')[:-4]
-                        #ep_link = urljoin( u, l['href'])
-                        ep_link = u + '/' + l['href']
-                        ep_name = ep_name + '.mp3'
-                        download_episode(DL_PATH / ep_name, ep_link)
-                except KeyError:
-                    pass
-        else:
-            # click.secho(
-            #     f'Error: INVALID URL \n Make sure \'{u}\' is a valid url and try again.\n '
-            #     'The URL should start with https://archive.org/details/ ', fg='red')
-            print(f'Error: INVALID URL \n Make sure \'{u}\' is a valid url and try again.\n '
-                  'The URL should start with https://archive.org/details/ ')
-            pass
 
 
 parser = argparse.ArgumentParser(prog="otr-dl",
@@ -124,23 +171,24 @@ parser.add_argument("-o",
 parser.add_argument("-f",
                     action="store_true",
                     dest='file',
-                    help="text file containg links to otr shows")
+                    help="a file with list of OTR shows")
 
 args = parser.parse_args()
 
 
-def main():
-
-    p = Path(args.output)
+def cli():
 
     if args.file:
        # Read links from args.link
         links = read_links(args.link)
+        for link in links:
+            download_show(link)
     else:
-        links = [args.link]
-
-    download(links, p)
+        download_show(args.link)
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        cli()
+    except KeyboardInterrupt:
+        print("quitting")
