@@ -3,6 +3,7 @@ import argparse
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 from urllib.request import urlopen
+from colorama import Back,  Style
 from tqdm import tqdm
 from pathlib import Path
 import re
@@ -105,36 +106,47 @@ def download_show(url):
 
     print(show)
 
+    total_episode = len(show.episodes)
+    counter = 1
     for episode in show.episodes:
         episode.url = urljoin(show.download_url, episode.URI)
-        download_episode(show.path, episode)
+        download_episode(show.path, episode, [counter, total_episode])
+        counter += 1
 
 
-def download_episode(path, episode):
+def download_episode(path, episode, counter):
     episode_f = path / (episode.title + ".mp3")
-    print(f"{episode.title} :")
-    download(episode_f, episode.url)
+
+    f_name = f"[{counter[0]}/{counter[1]}] {episode_f.stem}"
+
+    # Get the file size of the episode from the url
+    file_size = int(urlopen(episode.url).info().get('Content-Length', -1))
+
+    # Check if the file is half downloaded.
+    if episode_f.exists():
+        first_byte = episode_f.stat().st_size
+        if first_byte >= file_size:
+            print(
+                f' {Back.GREEN} COMPLETED {Style.RESET_ALL} {f_name}')
+            return
+        else:
+            desc = f' {Back.BLUE} RESUMING  {Style.RESET_ALL} {f_name}'
+            download(episode_f, episode.url,  desc, first_byte, file_size)
+    else:
+        first_byte = 0
+        desc = " " + f_name
+        download(episode_f, episode.url,  desc, first_byte, file_size)
+
+    print("\033[A\033[K\033[A")
+    print(f" {Back.GREEN} COMPLETED {Style.RESET_ALL} {f_name}")
 
 
-def download(f, url):
+def download(f, url, desc, first_byte, file_size):
     '''
     Downloads the episode.
     Has a progress bar, using tqdm
     Source: https://gist.github.com/wy193777/0e2a4932e81afc6aa4c8f7a2984f34e2
     '''
-    # Get the file size of the episode from the url
-    file_size = int(urlopen(url).info().get('Content-Length', -1))
-
-    # Check if the file is half downloaded.
-    if f.exists():
-        print(f'Resuming {f.stem}:')
-        first_byte = f.stat().st_size
-    else:
-        first_byte = 0
-
-    if first_byte >= file_size:
-        print(f'Skipping {f.stem}, already downloaded.')
-        return
 
     # If previously interrupted .
     # Only get the part that is not downloaded
@@ -142,7 +154,9 @@ def download(f, url):
 
     # Set progress bar with first_byte being the intial
     pbar = tqdm(total=file_size,  initial=first_byte,
-                unit='B', unit_scale=True)  # , desc=f"f.stem")
+                unit='B', unit_scale=True,
+                bar_format="{desc} :{percentage:3.0f}%|{bar:30}{r_bar}",
+                desc=desc)
 
     req = requests.get(url, headers=header, stream=True)
 
