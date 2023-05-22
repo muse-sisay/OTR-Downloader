@@ -1,4 +1,4 @@
-requests==2.21.0
+requests==2.31.0
 tqdm==4.44.1
 beautifulsoup4==4.8.2
 colorama==0.4.4
